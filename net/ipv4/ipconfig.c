@@ -226,6 +226,7 @@ static int __init ic_open_devs(void)
 	}
 
 	for_each_netdev(&init_net, dev) {
+    pr_notice("hikalium: IP-Config: probing %s\n",dev->name);
 		if (ic_is_init_dev(dev)) {
 			int able = 0;
 			if (dev->mtu >= 364)
@@ -259,6 +260,8 @@ static int __init ic_open_devs(void)
 				d->xid = 0;
 			ic_proto_have_if |= able;
 			pr_debug("IP-Config: %s UP (able=%d, xid=%08x)\n",
+				 dev->name, able, d->xid);
+      pr_notice("hikalium: IP-Config: %s UP (able=%d, xid=%08x)\n",
 				 dev->name, able, d->xid);
 		}
 	}
@@ -1442,6 +1445,8 @@ static int __init wait_for_devices(void)
 	int i;
 	bool try_init_devs = true;
 
+  pr_notice("hikalium: %s\n", __func__);
+
 	for (i = 0; i < DEVICE_WAIT_MAX; i++) {
 		struct net_device *dev;
 		int found = 0;
@@ -1451,9 +1456,10 @@ static int __init wait_for_devices(void)
 
 		rtnl_lock();
 		for_each_netdev(&init_net, dev) {
+      pr_notice("hikalium: %s: %s\n", __func__, dev->name);
 			if (ic_is_init_dev(dev)) {
 				found = 1;
-				break;
+				// break;
 			}
 		}
 		rtnl_unlock();
@@ -1482,6 +1488,8 @@ static int __init ip_auto_config(void)
 	int err;
 	unsigned int i, count;
 
+  pr_notice("hikalium: %s\n", __func__);
+  dump_stack();
 	/* Initialise all name servers and NTP servers to NONE (but only if the
 	 * "ip=" or "nfsaddrs=" kernel command line parameters weren't decoded,
 	 * otherwise we'll overwrite the IP addresses specified there)
