@@ -58,7 +58,17 @@ run :
 	mkdir -p mnt/EFI/BOOT
 	cp build/full_nfs_efi/arch/x86/boot/bzImage mnt/EFI/BOOT/BOOTX64.EFI
 	# sudo apt install ovmf
-	qemu-system-x86_64 -bios /usr/share/ovmf/OVMF.fd -display none -drive format=raw,file=fat:rw:mnt -serial stdio --enable-kvm -m 1024m -machine q35 -cpu qemu64 -smp 4
+	qemu-system-x86_64 \
+		-bios /usr/share/ovmf/OVMF.fd \
+		-display none \
+		-drive format=raw,file=fat:rw:mnt \
+		-serial stdio \
+		--enable-kvm \
+		-m 1024m \
+		-machine q35 \
+		-cpu qemu64 -smp 4 \
+		-device qemu-xhci \
+		-net user
 
 .PHONY : run_crosvm
 run_crosvm : prepare_mnt crosvm
