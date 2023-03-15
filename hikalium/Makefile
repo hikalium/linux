@@ -4,8 +4,8 @@ BUILD_DIR=$(shell readlink -f ./build/)/${PROFILE}/
 CONFIG=$(shell readlink -f ./config_${PROFILE}.txt)
 CONTROL_SOCKET=$(shell pwd)/crosvm_ctrl_sock
 MOUNT_DIR=$(shell pwd)/mnt/
-VMLINUX=$(shell readlink -f ./build/obsidian/vmlinux)
-BZIMAGE=$(shell readlink -f ./build/obsidian/arch/x86/boot/bzImage)
+VMLINUX=$(shell readlink -f ./build/$(PROFILE)/vmlinux)
+BZIMAGE=$(shell readlink -f ./build/$(PROFILE)/arch/x86/boot/bzImage)
 
 .PHONY : kernel
 kernel :
@@ -34,6 +34,14 @@ menuconfig :
 	mkdir -p ${BUILD_DIR}
 	cp ${CONFIG} ${BUILD_DIR}/.config
 	make -C .. O=${BUILD_DIR} menuconfig
+	cp ${BUILD_DIR}/.config ${CONFIG}
+
+.PHONY : allyesconfig 
+allyesconfig :
+	echo ${BUILD_DIR}
+	mkdir -p ${BUILD_DIR}
+	cp ${CONFIG} ${BUILD_DIR}/.config
+	make -C .. O=${BUILD_DIR} allyesconfig
 	cp ${BUILD_DIR}/.config ${CONFIG}
 
 .PHONY : prepare_mnt
