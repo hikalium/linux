@@ -54,7 +54,14 @@ crosvm :
 	@which crosvm || { echo "please install crosvm from https://chromium.googlesource.com/crosvm/crosvm/" ; exit 1; }
 
 .PHONY : run
-run : prepare_mnt crosvm
+run :
+	mkdir -p mnt/EFI/BOOT
+	cp build/full_nfs_efi/arch/x86/boot/bzImage mnt/EFI/BOOT/BOOTX64.EFI
+	# sudo apt install ovmf
+	qemu-system-x86_64 -bios /usr/share/ovmf/OVMF.fd -display none -drive format=raw,file=fat:rw:mnt -serial stdio --enable-kvm -m 1024m -machine q35 -cpu qemu64 -smp 4
+
+.PHONY : run_crosvm
+run_crosvm : prepare_mnt crosvm
 	# https://www.kernel.org/doc/html/v4.14/admin-guide/kernel-parameters.html
 	cd ../../crosvm && cargo run -- run \
 			--socket $(CONTROL_SOCKET) \
