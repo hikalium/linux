@@ -1,2 +1,3 @@
 *.img
 mnt/
+qemu_log.txt
