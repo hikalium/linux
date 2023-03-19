@@ -62,12 +62,15 @@ run :
 		-bios /usr/share/ovmf/OVMF.fd \
 		-display none \
 		-drive format=raw,file=fat:rw:mnt \
-		-serial stdio \
+		-chardev stdio,id=char_com1,mux=on,logfile=com1.log \
+		-serial chardev:char_com1 \
 		--enable-kvm \
 		-m 512m \
 		-machine q35 \
 		-cpu qemu64 -smp 1 \
-		-nic user,model=rtl8139
+		-device virtio-rng-pci \
+		-monitor telnet:0.0.0.0:2222,server,nowait \
+		-nic tap,ifname=tap0,id=u1,model=virtio,script=no
 
 .PHONY : run_crosvm
 run_crosvm : prepare_mnt crosvm

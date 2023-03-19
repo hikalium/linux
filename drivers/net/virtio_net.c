@@ -4384,6 +4384,8 @@ static int virtnet_probe(struct virtio_device *vdev)
 	u16 max_queue_pairs;
 	int mtu = 0;
 
+  pr_notice("hikalium: %s\n", __func__);
+
 	/* Find if host supports multiqueue/rss virtio_net device */
 	max_queue_pairs = 1;
 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MQ) || virtio_has_feature(vdev, VIRTIO_NET_F_RSS))
@@ -4786,6 +4788,8 @@ static struct virtio_driver virtio_net_driver = {
 static __init int virtio_net_driver_init(void)
 {
 	int ret;
+
+  pr_notice("hikalium: %s\n", __func__);
 
 	ret = cpuhp_setup_state_multi(CPUHP_AP_ONLINE_DYN, "virtio/net:online",
 				      virtnet_cpu_online,
