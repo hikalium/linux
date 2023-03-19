@@ -64,11 +64,10 @@ run :
 		-drive format=raw,file=fat:rw:mnt \
 		-serial stdio \
 		--enable-kvm \
-		-m 1024m \
+		-m 512m \
 		-machine q35 \
-		-cpu qemu64 -smp 4 \
-		-device qemu-xhci \
-		-net user
+		-cpu qemu64 -smp 1 \
+		-nic user,model=rtl8139
 
 .PHONY : run_crosvm
 run_crosvm : prepare_mnt crosvm
