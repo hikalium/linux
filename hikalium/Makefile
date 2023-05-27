@@ -1,4 +1,4 @@
-PROFILE?=obsidian
+PROFILE?=milvus
 
 BUILD_DIR=$(shell readlink -f ./build/)/${PROFILE}/
 CONFIG=$(shell readlink -f ./config_${PROFILE}.txt)
