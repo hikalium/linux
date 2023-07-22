@@ -1,4 +1,4 @@
-PROFILE?=milvus
+PROFILE?=obsidian
 
 BUILD_DIR=$(shell readlink -f ./build/)/${PROFILE}/
 CONFIG=$(shell readlink -f ./config_${PROFILE}.txt)
@@ -6,6 +6,25 @@ CONTROL_SOCKET=$(shell pwd)/crosvm_ctrl_sock
 MOUNT_DIR=$(shell pwd)/mnt/
 VMLINUX=$(shell readlink -f ./build/$(PROFILE)/vmlinux)
 BZIMAGE=$(shell readlink -f ./build/$(PROFILE)/arch/x86/boot/bzImage)
+PORT_MONITOR?=2345
+PORT_OFFSET_VNC?=5
+
+QEMU_ARGS=\
+		-bios /usr/share/ovmf/OVMF.fd \
+		-drive format=raw,file=fat:rw:mnt \
+		-chardev stdio,id=char_com1,mux=on,logfile=com1.log \
+		-serial chardev:char_com1 \
+		--enable-kvm \
+		-m 512m \
+		-machine q35 \
+		-cpu qemu64 -smp 1 \
+		-device virtio-rng-pci \
+		-monitor telnet:0.0.0.0:2222,server,nowait \
+		${MORE_QEMU_FLAGS}
+
+ifndef DISPLAY
+QEMU_ARGS+=-vnc 0.0.0.0:$(PORT_OFFSET_VNC),password=on
+endif
 
 .PHONY : kernel
 kernel :
@@ -56,21 +75,9 @@ crosvm :
 .PHONY : run
 run :
 	mkdir -p mnt/EFI/BOOT
-	cp build/full_nfs_efi/arch/x86/boot/bzImage mnt/EFI/BOOT/BOOTX64.EFI
+	cp build/${PROFILE}/arch/x86/boot/bzImage mnt/EFI/BOOT/BOOTX64.EFI
 	# sudo apt install ovmf
-	qemu-system-x86_64 \
-		-bios /usr/share/ovmf/OVMF.fd \
-		-display none \
-		-drive format=raw,file=fat:rw:mnt \
-		-chardev stdio,id=char_com1,mux=on,logfile=com1.log \
-		-serial chardev:char_com1 \
-		--enable-kvm \
-		-m 512m \
-		-machine q35 \
-		-cpu qemu64 -smp 1 \
-		-device virtio-rng-pci \
-		-monitor telnet:0.0.0.0:2222,server,nowait \
-		-nic tap,ifname=tap0,id=u1,model=virtio,script=no
+	qemu-system-x86_64 ${QEMU_ARGS}
 
 .PHONY : run_crosvm
 run_crosvm : prepare_mnt crosvm
