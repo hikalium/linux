@@ -460,7 +460,7 @@ CONFIG_HOTPLUG_CPU=y
 CONFIG_LEGACY_VSYSCALL_XONLY=y
 # CONFIG_LEGACY_VSYSCALL_NONE is not set
 CONFIG_CMDLINE_BOOL=y
-CONFIG_CMDLINE="vt.color=0x00 console=ttyS0,115200n8 root=/dev/sda1 init=/init"
+CONFIG_CMDLINE="vt.color=0x00 console=ttyS0,115200n8 root=/dev/sda1 rw init=/init"
 # CONFIG_CMDLINE_OVERRIDE is not set
 # CONFIG_MODIFY_LDT_SYSCALL is not set
 # CONFIG_STRICT_SIGALTSTACK_SIZE is not set

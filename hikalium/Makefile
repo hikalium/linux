@@ -1,5 +1,7 @@
 PROFILE?=efiusb
 
+BUSYBOX=busybox-1.36.1
+
 BUILD_DIR=$(shell readlink -f ./build/)/${PROFILE}/
 CONFIG=$(shell readlink -f ./config_${PROFILE}.txt)
 CONTROL_SOCKET=$(shell pwd)/crosvm_ctrl_sock
@@ -29,6 +31,19 @@ endif
 
 default:
 	make kernel
+
+.PHONY : busybox
+busybox:
+	wget -nc -O build/${BUSYBOX}.tar.bz2 https://busybox.net/downloads/${BUSYBOX}.tar.bz2 || true
+	cd build && tar -xvf ${BUSYBOX}.tar.bz2
+	cd build/${BUSYBOX} && make defconfig && \
+		echo "" > .config && \
+		echo "CONFIG_STATIC=y" >> .config && \
+		echo "CONFIG_TC=n" >> .config && \
+		yes "" | make oldconfig && \
+		grep -E "CONFIG_STATIC[= ]" .config && \
+		grep -E "CONFIG_TC[= ]" .config && \
+		make install -j8
 
 file:
 	file ${BUILD_DIR}/arch/x86/boot/bzImage
@@ -75,6 +90,16 @@ prepare_mnt :
 run :
 	mkdir -p mnt/EFI/BOOT
 	cp build/${PROFILE}/arch/x86/boot/bzImage mnt/EFI/BOOT/BOOTX64.EFI
+	mkdir -p mnt/bin
+	cp build/${BUSYBOX}/_install/bin/busybox mnt/bin/busybox
+	cd mnt/bin && ln -snf busybox sh
+	cd mnt/bin && ln -snf busybox ln
+	cd mnt/bin && ln -snf busybox init
+	cd mnt/bin && ln -snf busybox mkdir
+	cd mnt/bin && ln -snf busybox ls 
+	mkdir -p mnt/etc/init.d
+	cp init.txt mnt/etc/init.d/rcS
+	chmod 755 mnt/etc/init.d/rcS
 	qemu-system-x86_64 ${QEMU_ARGS}
 
 .PHONY : rebase
