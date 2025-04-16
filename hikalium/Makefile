@@ -15,7 +15,7 @@ PORT_OFFSET_VNC?=5
 QEMU_ARGS=\
 		-bios ${OVMF} \
 		-drive format=raw,file=fat:rw:mnt \
-		-chardev stdio,id=char_com1,mux=on,logfile=com1.log \
+		-chardev stdio,id=char_com1,mux=on,logfile=com1.log,signal=off \
 		-serial chardev:char_com1 \
 		--enable-kvm \
 		-m 2g \
@@ -91,16 +91,15 @@ run :
 	mkdir -p mnt/EFI/BOOT
 	cp build/${PROFILE}/arch/x86/boot/bzImage mnt/EFI/BOOT/BOOTX64.EFI
 	mkdir -p mnt/bin
-	cp build/${BUSYBOX}/_install/bin/busybox mnt/bin/busybox
-	cd mnt/bin && ln -snf busybox sh
-	cd mnt/bin && ln -snf busybox ln
-	cd mnt/bin && ln -snf busybox init
-	cd mnt/bin && ln -snf busybox mkdir
-	cd mnt/bin && ln -snf busybox ls 
+	cp -a build/${BUSYBOX}/_install/bin/* mnt/bin/
 	mkdir -p mnt/etc/init.d
 	cp init.txt mnt/etc/init.d/rcS
 	chmod 755 mnt/etc/init.d/rcS
-	qemu-system-x86_64 ${QEMU_ARGS}
+	stdbuf -oL qemu-system-x86_64 ${QEMU_ARGS}
+
+.PHONY : shutdown
+shutdown:
+	echo "q" | nc localhost 2222
 
 .PHONY : rebase
 rebase :
